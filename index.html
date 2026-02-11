@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ramadan Ultimate Planner</title>
+    <title>Ramadan Pro Elite</title>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -15,242 +15,250 @@
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
-        body {
-            margin: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: var(--bg-primary);
-            color: #f8fafc;
-            min-height: 100vh;
-            transition: background 0.5s ease;
-        }
+        body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg-primary); color: #f8fafc; transition: 0.5s; overflow-x: hidden; }
 
-        /* --- INTRO SCREEN --- */
-        #intro-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-primary); display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; z-index: 9999;
-            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
-        }
-        .intro-logo { font-size: 80px; filter: drop-shadow(0 0 20px var(--btn-accent)); animation: pulse 2s infinite; }
+        #intro-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-primary); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: 0.8s; }
         .hide-intro { transform: translateY(-100%); }
 
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .prayer-bar { background: rgba(0,0,0,0.2); padding: 10px 20px; display: flex; justify-content: space-around; font-size: 0.8rem; border-bottom: 1px solid var(--glass-border); }
+        .prayer-bar b { color: var(--btn-accent); }
 
-        /* --- UI COMPONENTS --- */
-        .header { padding: 25px 20px 10px; display: flex; justify-content: space-between; align-items: center; }
-        .add-cat-fab { width: 45px; height: 45px; background: var(--btn-accent); color: #000; border: none; border-radius: 12px; font-size: 1.5rem; }
-        .hijri-date { font-family: 'Amiri', serif; color: var(--btn-accent); font-size: 1.2rem; text-align: right; }
+        /* Counters Section */
+        .top-widgets { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px 20px; }
+        .widget-card { background: var(--glass); border: 1px solid var(--glass-border); padding: 15px; border-radius: 18px; text-align: center; cursor: pointer; transition: 0.2s; }
+        .widget-card:active { transform: scale(0.95); background: rgba(255,255,255,0.15); }
+        .widget-card h4 { margin: 0; font-size: 0.7rem; opacity: 0.6; text-transform: uppercase; }
+        .widget-val { font-size: 1.4rem; font-weight: bold; color: var(--btn-accent); display: block; margin-top: 5px; }
 
-        /* Countdown Widget (Gemini's Addition) */
-        .special-widget {
-            margin: 10px 20px; padding: 12px; background: rgba(255,255,255,0.03);
-            border-radius: 15px; border: 1px dashed var(--btn-accent);
-            text-align: center; font-size: 0.8rem;
-        }
-
-        .quran-widget { margin: 15px 20px; padding: 15px; background: var(--glass); border-radius: 18px; border: 1px solid var(--glass-border); text-align: center; }
-        .quran-text { font-family: 'Amiri', serif; font-size: 1.1rem; color: var(--btn-accent); }
-
-        .search-box { width: calc(100% - 40px); margin: 10px 20px; background: var(--glass); border: 1px solid var(--glass-border); padding: 12px; border-radius: 12px; color: white; outline: none; }
+        .header { padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
         
+        /* Category Bar */
         .cat-scroll { display: flex; gap: 10px; padding: 10px 20px; overflow-x: auto; scrollbar-width: none; }
-        .chip { background: var(--glass); padding: 8px 16px; border-radius: 10px; border: 1px solid var(--glass-border); white-space: nowrap; }
-        .chip.active { background: var(--btn-accent); color: #000; font-weight: bold; }
+        .chip { background: var(--glass); padding: 10px 18px; border-radius: 12px; border: 1px solid var(--glass-border); white-space: nowrap; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .chip.active { background: var(--btn-accent); color: #000; font-weight: bold; border-color: var(--btn-accent); }
 
-        /* --- TASK CARDS --- */
-        .task-card { background: var(--glass); border-radius: 18px; padding: 18px; margin: 0 20px 12px; border: 1px solid var(--glass-border); position: relative; }
-        .task-card.done { border-left: 5px solid var(--emerald); opacity: 0.5; }
-        .task-title { font-weight: 600; font-size: 1.1rem; display: block; margin-bottom: 5px; }
-        .task-desc { font-size: 0.85rem; opacity: 0.7; line-height: 1.4; }
-        .task-meta { font-size: 0.75rem; color: var(--btn-accent); margin-top: 12px; font-weight: bold; }
-
-        /* --- THEME SETTINGS --- */
-        .theme-fab { position: fixed; bottom: 25px; right: 20px; width: 55px; height: 55px; background: var(--btn-accent); border-radius: 50%; border: none; font-size: 1.5rem; box-shadow: 0 8px 20px rgba(0,0,0,0.4); z-index: 100; }
-        
-        #theme-modal {
-            display: none; position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.9); z-index: 10000; justify-content: center; align-items: center;
-        }
-        .theme-content { background: #042f2e; padding: 30px; border-radius: 25px; width: 85%; border: 1px solid var(--btn-accent); }
-        .color-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .color-row label { font-size: 0.9rem; font-weight: 600; }
+        /* Task Cards */
+        .task-card { background: var(--glass); border-radius: 20px; padding: 18px; margin: 0 20px 12px; border: 1px solid var(--glass-border); }
+        .task-card.done { border-left: 6px solid var(--emerald); opacity: 0.5; }
+        .task-date { font-size: 0.7rem; color: var(--btn-accent); margin-top: 8px; font-weight: 600; }
 
         .input-card { background: rgba(255,255,255,0.03); margin: 10px 20px; padding: 20px; border-radius: 20px; border: 1px solid var(--glass-border); }
-        .save-btn { width: 100%; background: var(--btn-accent); color: #000; border: none; padding: 14px; border-radius: 12px; font-weight: bold; margin-top: 10px; transition: 0.3s; }
+        .input-card input, .input-card textarea { width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--glass-border); color: white; padding: 10px 0; outline: none; margin-bottom: 10px; font-family: inherit; }
+        
+        .save-btn { width: 100%; background: var(--btn-accent); color: #000; border: none; padding: 14px; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        .theme-fab { position: fixed; bottom: 25px; left: 20px; width: 50px; height: 50px; background: var(--btn-accent); border-radius: 50%; border: none; font-size: 1.2rem; z-index: 100; cursor: pointer; }
 
-        #cat-modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); z-index: 10000; justify-content: center; align-items: center; }
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); z-index: 10000; justify-content: center; align-items: center; }
+        .modal-content { background: #042f2e; padding: 25px; border-radius: 25px; width: 90%; border: 1px solid var(--btn-accent); max-height: 80vh; overflow-y: auto; }
+        .cat-item { display: flex; justify-content: space-between; align-items: center; background: var(--glass); padding: 12px; border-radius: 12px; margin-bottom: 8px; }
     </style>
 </head>
 <body>
 
     <div id="intro-screen">
-        <div class="intro-logo">🌙</div>
-        <div style="font-family: 'Amiri', serif; font-size: 2.5rem; color: var(--btn-accent); margin-top: 20px;">Ramadan Mubarak</div>
+        <div style="font-size:80px;">🌙</div>
+        <div style="font-family: 'Amiri', serif; font-size: 2.2rem; color: var(--btn-accent);">Ramadan Pro Elite</div>
     </div>
 
-    <div class="header">
-        <button class="add-cat-fab" onclick="document.getElementById('cat-modal').style.display='flex'">+</button>
-        <div class="hijri-date">
-            <div id="h-date">1 Ramadan</div>
-            <div id="g-date" style="font-size: 0.75rem; opacity: 0.5;"></div>
+    <div class="prayer-bar">
+        <span>Suhoor: <b id="p-imsak">--:--</b></span>
+        <span>Iftar: <b id="p-iftar">--:--</b></span>
+        <span>City: <b id="p-city">...</b></span>
+    </div>
+
+    <div class="top-widgets">
+        <div class="widget-card" onclick="updateNamaz()">
+            <h4>🕌 Namaz (Tap)</h4>
+            <span class="widget-val" id="namaz-val">0 / 5</span>
+        </div>
+        <div class="widget-card" onclick="updateTasbih()">
+            <h4>📿 Dhikr (Tap)</h4>
+            <span class="widget-val" id="tasbih-val">0</span>
         </div>
     </div>
 
-    <div class="special-widget" id="countdown-widget">
-        ✨ Preparing for the Blessed Month...
+    <div class="header">
+        <button style="width:45px;height:45px;border-radius:12px;border:none;background:var(--btn-accent);font-weight:bold;color:#000;font-size:1.2rem;" onclick="openCatModal()">📁</button>
+        <div id="h-date" style="font-family:'Amiri'; font-size: 1.3rem; color:var(--btn-accent)"></div>
+        <button style="background:transparent; border:1px solid var(--glass-border); color:white; padding:5px 10px; border-radius:8px; font-size:0.7rem;" onclick="resetCounters()">RESET</button>
     </div>
-
-    <div class="quran-widget" id="quran-widget"></div>
-
-    <input type="text" id="search-bar" class="search-box" placeholder="🔍 Search by task or category..." onkeyup="renderTasks()">
-
-    <div class="cat-scroll" id="cat-bar"></div>
 
     <div class="input-card">
-        <input type="text" id="t-title" placeholder="What is the goal?" style="width:100%; background:transparent; border:none; border-bottom:1px solid var(--glass-border); color:white; padding:10px 0; outline:none;">
-        <textarea id="t-desc" placeholder="Add a description/details..." style="width:100%; background:transparent; border:none; border-bottom:1px solid var(--glass-border); color:white; padding:10px 0; outline:none; font-family:inherit;"></textarea>
-        <div style="margin-top:10px; font-size:0.8rem;">Target: <input type="date" id="t-date" style="background:transparent; border:1px solid var(--glass-border); color:white; border-radius:5px; padding:3px;"></div>
-        <button class="save-btn" onclick="addTask()">Schedule Task</button>
+        <input type="text" id="t-title" placeholder="Goal Title">
+        <textarea id="t-desc" placeholder="Goal Details..."></textarea>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:0.8rem;">
+            <span>Target Date:</span>
+            <input type="date" id="t-date" style="color-scheme:dark; border:1px solid var(--glass-border); padding:5px; border-radius:8px;">
+        </div>
+        <button class="save-btn" onclick="addTask()">Save New Goal</button>
     </div>
+
+    <div class="cat-scroll" id="cat-bar"></div>
 
     <div id="task-list" style="padding-bottom:100px;"></div>
 
     <button class="theme-fab" onclick="document.getElementById('theme-modal').style.display='flex'">🎨</button>
 
-    <div id="theme-modal">
-        <div class="theme-content">
-            <h3 style="margin-top:0; color:var(--btn-accent)">Customize Theme</h3>
-            <div class="color-row">
-                <label>Background Color</label>
-                <input type="color" id="bg-picker" onchange="updateTheme('bg', this.value)">
-            </div>
-            <div class="color-row">
-                <label>Button & Accent Color</label>
-                <input type="color" id="btn-picker" onchange="updateTheme('btn', this.value)">
-            </div>
-            <button class="save-btn" onclick="document.getElementById('theme-modal').style.display='none'">Apply & Close</button>
+    <div id="theme-modal" class="modal">
+        <div class="modal-content">
+            <h3>Theme Settings</h3>
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px;"><label>Background</label><input type="color" onchange="updateTheme('bg', this.value)"></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px;"><label>Accent Color</label><input type="color" onchange="updateTheme('btn', this.value)"></div>
+            <button class="save-btn" onclick="document.getElementById('theme-modal').style.display='none'">Apply</button>
         </div>
     </div>
 
-    <div id="cat-modal">
-        <div class="theme-content">
-            <h3 style="margin-top:0">New Category</h3>
-            <input type="text" id="new-cat-n" class="search-box" placeholder="Name" style="width:100%; margin:10px 0;">
-            <input type="text" id="new-cat-e" class="search-box" placeholder="Icon (Emoji)" style="width:100%; margin:10px 0;">
-            <button class="save-btn" onclick="createCategory()">Add Category</button>
-            <button class="save-btn" style="background:transparent; color:white" onclick="document.getElementById('cat-modal').style.display='none'">Cancel</button>
+    <div id="cat-modal" class="modal">
+        <div class="modal-content">
+            <h3 style="color:var(--btn-accent)">Manage Categories</h3>
+            <div id="cat-manage-list"></div>
+            <hr style="opacity:0.2; margin:15px 0;">
+            <div style="display:flex; gap:5px; margin-bottom:10px;">
+                <input type="text" id="new-cat-icon" placeholder="Icon (e.g. 📖)" style="width:30%; background:transparent; border:none; border-bottom:1px solid var(--glass-border); color:white; padding:10px;">
+                <input type="text" id="new-cat-name" placeholder="Name" style="width:70%; background:transparent; border:none; border-bottom:1px solid var(--glass-border); color:white; padding:10px;">
+            </div>
+            <button class="save-btn" onclick="addCategory()">Add Category</button>
+            <button class="save-btn" style="background:transparent; color:white; margin-top:10px; border:1px solid var(--glass-border)" onclick="document.getElementById('cat-modal').style.display='none'">Close</button>
         </div>
     </div>
 
     <script>
-        let categories = JSON.parse(localStorage.getItem('R_CATS_FINAL')) || [{ name: 'Ibadah', icon: '🕌' }, { name: 'Quran', icon: '📖' }];
-        let tasks = JSON.parse(localStorage.getItem('R_TASKS_FINAL')) || [];
+        let tasks = JSON.parse(localStorage.getItem('R_TASKS_PRO')) || [];
+        let categories = JSON.parse(localStorage.getItem('R_CATS_PRO')) || [
+            {name:'Ibadah', icon:'🕌'}, 
+            {name:'Quran', icon:'📖'}, 
+            {name:'Health', icon:'🥗'}
+        ];
+        let namaz = JSON.parse(localStorage.getItem('R_NAMAZ')) || 0;
+        let tasbih = JSON.parse(localStorage.getItem('R_TASBIH')) || 0;
         let activeCat = 'All';
 
-        function updateTheme(type, val) {
-            if(type === 'bg') {
-                document.documentElement.style.setProperty('--bg-primary', val);
-                localStorage.setItem('THEME_BG', val);
-            } else {
-                document.documentElement.style.setProperty('--btn-accent', val);
-                localStorage.setItem('THEME_BTN', val);
-            }
-        }
-
         window.onload = () => {
-            // Load saved theme
             const savedBg = localStorage.getItem('THEME_BG');
             const savedBtn = localStorage.getItem('THEME_BTN');
             if(savedBg) updateTheme('bg', savedBg);
             if(savedBtn) updateTheme('btn', savedBtn);
-            
-            setTimeout(() => document.getElementById('intro-screen').classList.add('hide-intro'), 2000);
-            
-            init();
+            document.getElementById('t-date').valueAsDate = new Date();
+            setTimeout(() => document.getElementById('intro-screen').classList.add('hide-intro'), 1500);
+            updateUI();
+            getPrayerTimes();
         };
 
-        function init() {
-            const hijri = new Intl.DateTimeFormat('en-u-ca-islamic-uma', { day:'numeric', month:'long', year:'numeric' }).format(new Date());
-            document.getElementById('h-date').innerText = hijri;
-            document.getElementById('g-date').innerText = new Date().toDateString();
-            document.getElementById('t-date').valueAsDate = new Date();
-            
-            document.getElementById('quran-widget').innerHTML = `<div class="quran-text">"Indeed, with hardship [will be] ease."</div><div style="font-size:0.7rem; opacity:0.5">Surah Ash-Sharh 94:6</div>`;
-            
-            // Gemini's addition: Countdown to Last 10 Nights
-            document.getElementById('countdown-widget').innerText = "🌙 Keep striving! Every good deed is multiplied in Ramadan.";
+        function updateTheme(type, val) {
+            if(type === 'bg') { document.documentElement.style.setProperty('--bg-primary', val); localStorage.setItem('THEME_BG', val); }
+            else { document.documentElement.style.setProperty('--btn-accent', val); localStorage.setItem('THEME_BTN', val); }
+        }
 
-            renderCategories();
+        async function getPrayerTimes() {
+            try {
+                const res = await fetch('https://ipapi.co/json/');
+                const data = await res.json();
+                document.getElementById('p-city').innerText = data.city;
+                const pRes = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${data.city}&country=${data.country_name}&method=2`);
+                const pData = await pRes.json();
+                document.getElementById('p-imsak').innerText = pData.data.timings.Imsak;
+                document.getElementById('p-iftar').innerText = pData.data.timings.Maghrib;
+            } catch (e) { document.getElementById('p-city').innerText = "Global"; }
+        }
+
+        // --- TASK FUNCTIONS ---
+        function addTask() {
+            const title = document.getElementById('t-title').value;
+            const desc = document.getElementById('t-desc').value;
+            const date = document.getElementById('t-date').value;
+            if(!title) return;
+            tasks.unshift({ id: Date.now(), title, desc, date, cat: activeCat === 'All' ? 'General' : activeCat, done: false });
+            saveTasks();
+            document.getElementById('t-title').value = '';
+            document.getElementById('t-desc').value = '';
             renderTasks();
         }
 
-        function createCategory() {
-            const name = document.getElementById('new-cat-n').value;
-            const icon = document.getElementById('new-cat-e').value || '🌙';
+        function toggleDone(id) { tasks = tasks.map(t => t.id === id ? {...t, done: !t.done} : t); saveTasks(); renderTasks(); }
+        function deleteTask(id) { if(confirm("Delete task?")) { tasks = tasks.filter(t => t.id !== id); saveTasks(); renderTasks(); } }
+        function saveTasks() { localStorage.setItem('R_TASKS_PRO', JSON.stringify(tasks)); }
+
+        // --- CATEGORY FUNCTIONS ---
+        function openCatModal() { document.getElementById('cat-modal').style.display = 'flex'; renderManageCategories(); }
+        
+        function addCategory() {
+            const name = document.getElementById('new-cat-name').value;
+            const icon = document.getElementById('new-cat-icon').value || '🌟';
             if(name) {
-                categories.push({ name, icon });
-                localStorage.setItem('R_CATS_FINAL', JSON.stringify(categories));
-                document.getElementById('cat-modal').style.display = 'none';
+                categories.push({name, icon});
+                localStorage.setItem('R_CATS_PRO', JSON.stringify(categories));
+                document.getElementById('new-cat-name').value = '';
+                document.getElementById('new-cat-icon').value = '';
+                renderManageCategories();
                 renderCategories();
             }
         }
 
-        function renderCategories() {
-            const bar = document.getElementById('cat-bar');
-            bar.innerHTML = `<div class="chip ${activeCat === 'All' ? 'active' : ''}" onclick="setFilter('All')">All</div>`;
-            categories.forEach(c => {
-                bar.innerHTML += `<div class="chip ${activeCat === c.name ? 'active' : ''}" onclick="setFilter('${c.name}')">${c.icon} ${c.name}</div>`;
-            });
-        }
-
-        function setFilter(name) { activeCat = name; renderCategories(); renderTasks(); }
-
-        function addTask() {
-            const title = document.getElementById('t-title').value;
-            const desc = document.getElementById('t-desc').value;
-            const dueDate = document.getElementById('t-date').value;
-            if(title && dueDate) {
-                tasks.unshift({ id: Date.now(), title, desc, dueDate, cat: activeCat === 'All' ? 'General' : activeCat, done: false });
-                localStorage.setItem('R_TASKS_FINAL', JSON.stringify(tasks));
-                document.getElementById('t-title').value = '';
-                document.getElementById('t-desc').value = '';
-                renderTasks();
+        function deleteCategory(index) {
+            if(confirm("Delete this category?")) {
+                categories.splice(index, 1);
+                localStorage.setItem('R_CATS_PRO', JSON.stringify(categories));
+                renderManageCategories();
+                renderCategories();
             }
         }
 
-        function toggleDone(id) {
-            tasks = tasks.map(t => t.id === id ? {...t, done: !t.done} : t);
-            localStorage.setItem('R_TASKS_FINAL', JSON.stringify(tasks));
-            renderTasks();
-        }
-
-        function deleteTask(id) {
-            tasks = tasks.filter(t => t.id !== id);
-            localStorage.setItem('R_TASKS_FINAL', JSON.stringify(tasks));
-            renderTasks();
-        }
-
-        function renderTasks() {
-            const q = document.getElementById('search-bar').value.toLowerCase();
-            const filtered = tasks.filter(t => (activeCat === 'All' || t.cat === activeCat) && (t.title.toLowerCase().includes(q) || t.cat.toLowerCase().includes(q)))
-                             .sort((a,b) => new Date(a.dueDate) - new Date(b.dueDate));
-
-            document.getElementById('task-list').innerHTML = filtered.map(t => `
-                <div class="task-card ${t.done ? 'done' : ''}">
-                    <div style="display:flex; justify-content:space-between; font-size:0.65rem; color:var(--btn-accent); font-weight:bold; text-transform:uppercase;">
-                        <span>${t.cat}</span>
-                        <div>
-                            <span onclick="toggleDone(${t.id})" style="color:var(--emerald); margin-right:15px; cursor:pointer; font-size:1.1rem">✔</span>
-                            <span onclick="deleteTask(${t.id})" style="color:#f87171; cursor:pointer; font-size:1.1rem">✖</span>
-                        </div>
-                    </div>
-                    <span class="task-title">${t.title}</span>
-                    <div class="task-desc">${t.desc}</div>
-                    <div class="task-meta">📅 Targeted for ${new Date(t.dueDate).toDateString()}</div>
+        // --- RENDER FUNCTIONS ---
+        function renderManageCategories() {
+            const list = document.getElementById('cat-manage-list');
+            list.innerHTML = categories.map((c, i) => `
+                <div class="cat-item">
+                    <span>${c.icon} ${c.name}</span>
+                    <span onclick="deleteCategory(${i})" style="color:#f87171; cursor:pointer; font-weight:bold;">DELETE</span>
                 </div>
             `).join('');
         }
+
+        function renderCategories() {
+            const bar = document.getElementById('cat-bar');
+            bar.innerHTML = `<div class="chip ${activeCat === 'All' ? 'active' : ''}" onclick="setFilter('All')">📁 All</div>`;
+            categories.forEach(c => bar.innerHTML += `
+                <div class="chip ${activeCat === c.name ? 'active' : ''}" onclick="setFilter('${c.name}')">
+                    ${c.icon} ${c.name}
+                </div>`);
+        }
+
+        function renderTasks() {
+            const filtered = tasks.filter(t => (activeCat === 'All' || t.cat === activeCat))
+                                  .sort((a,b) => new Date(a.date) - new Date(b.date));
+            
+            document.getElementById('task-list').innerHTML = filtered.map(t => `
+                <div class="task-card ${t.done ? 'done' : ''}">
+                    <div style="display:flex; justify-content:space-between;">
+                        <div>
+                            <span style="font-size:0.65rem; color:var(--btn-accent); font-weight:bold;">${t.cat}</span>
+                            <div style="font-weight:600; margin-top:4px;">${t.title}</div>
+                            <div style="font-size:0.8rem; opacity:0.7; margin-top:4px;">${t.desc}</div>
+                            <div class="task-date">📅 Due: ${new Date(t.date).toDateString()}</div>
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <button onclick="toggleDone(${t.id})" style="background:transparent; border:none; color:var(--emerald); font-size:1.5rem;">✔</button>
+                            <button onclick="deleteTask(${t.id})" style="background:transparent; border:none; color:#f87171; font-size:1.5rem;">✖</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- COUNTER FUNCTIONS ---
+        function updateUI() {
+            document.getElementById('namaz-val').innerText = `${namaz} / 5`;
+            document.getElementById('tasbih-val').innerText = tasbih;
+            const hijri = new Intl.DateTimeFormat('en-u-ca-islamic-uma', { day:'numeric', month:'long' }).format(new Date());
+            document.getElementById('h-date').innerText = hijri;
+            renderCategories();
+            renderTasks();
+        }
+
+        function setFilter(n) { activeCat = n; renderCategories(); renderTasks(); }
+        function updateNamaz() { if (namaz < 5) { namaz++; localStorage.setItem('R_NAMAZ', namaz); updateUI(); } }
+        function updateTasbih() { tasbih++; localStorage.setItem('R_TASBIH', tasbih); updateUI(); }
+        function resetCounters() { if(confirm("Reset Namaz & Dhikr?")) { namaz = 0; tasbih = 0; localStorage.setItem('R_NAMAZ', 0); localStorage.setItem('R_TASBIH', 0); updateUI(); } }
     </script>
 </body>
 </html>
